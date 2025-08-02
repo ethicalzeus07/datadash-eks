@@ -11,13 +11,15 @@
 
 ---
 
-## 📐 Architecture
+### 🗺️ Architecture (Mermaid)
 
 ```mermaid
 flowchart LR
-    Browser -->|WS / HTTP| ALB
+    Browser -- WS / HTTP --> ALB
     ALB --> Service
-    Service --> Pod[(FastAPI ≅ WS + Static HTML)]
-    subgraph Amazon EKS (Fargate)
-      Pod
+    Service --> Pod[(FastAPI ⬌ static HTML)]
+
+    %% Group the pod inside EKS Fargate
+    subgraph "Amazon EKS Fargate"
+        Pod
     end
