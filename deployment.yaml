@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datadash
+  namespace: datadash
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: datadash
+  template:
+    metadata:
+      labels:
+        app: datadash
+    spec:
+      containers:
+        - name: datadash
+          image: 089737991678.dkr.ecr.us-west-1.amazonaws.com/datadash:latest
+          ports:
+            - containerPort: 80
+

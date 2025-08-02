@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Dash - Real-time Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #10b981;
+      --accent-color: #f59e0b;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      --border: #334155;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Controls */
+    .controls {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .controls h3 {
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-item label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .filter-item input {
+      padding: 0.75rem 1rem;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .filter-item input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .metric-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .metric-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .metric-icon.throughput {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    }
+
+    .metric-icon.average {
+      background: linear-gradient(135deg, var(--secondary-color), #059669);
+    }
+
+    .metric-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-unit {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* Events Table */
+    .events-section {
+      background: var(--surface);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .events-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .events-header h3 {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .events-count {
+      background: var(--surface-light);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .events-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .events-table th {
+      background: var(--surface-light);
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .events-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .events-table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    .events-table tbody tr:hover {
+      background: var(--surface-light);
+    }
+
+    .events-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .value-cell {
+      font-weight: 600;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    }
+
+    .time-cell {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .events-table th,
+      .events-table td {
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    /* Loading States */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid var(--border);
+      border-top: 2px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1><i class="fas fa-chart-line"></i> Data Dash</h1>
+      <div class="status">
+        <div class="status-indicator"></div>
+        <span>Live Data</span>
+      </div>
+    </header>
+
+    <!-- Controls -->
+    <section class="controls">
+      <h3><i class="fas fa-sliders-h"></i> Filters & Controls</h3>
+      <div class="filter-group">
+        <div class="filter-item">
+          <label for="threshold">
+            <i class="fas fa-filter"></i> Filter Threshold
+          </label>
+          <input 
+            type="number" 
+            id="threshold" 
+            value="0" 
+            step="0.1" 
+            min="0" 
+            max="1"
+            placeholder="Enter threshold value"
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <div class="metric-icon throughput">
+            <i class="fas fa-tachometer-alt"></i>
+          </div>
+          <div>
+            <div class="metric-title">Throughput</div>
+            <div class="metric-value" id="throughput">0</div>
+            <div class="metric-unit">events per second</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <div class="metric-icon average">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <div>
+            <div class="metric-title">Average Value</div>
+            <div class="metric-value" id="avg_value">0.000</div>
+            <div class="metric-unit">mean value</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Table -->
+    <section class="events-section">
+      <div class="events-header">
+        <h3><i class="fas fa-list"></i> Recent Events</h3>
+        <div class="events-count">
+          <span id="events_count">0</span> events
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="events-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-clock"></i> Timestamp</th>
+              <th><i class="fas fa-hashtag"></i> Value</th>
+            </tr>
+          </thead>
+          <tbody id="events_table">
+            <tr>
+              <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                Waiting for events...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // DOM Elements
+    const evtTbl = document.getElementById("events_table");
+    const thr = document.getElementById("throughput");
+    const avg = document.getElementById("avg_value");
+    const thInp = document.getElementById("threshold");
+    const eventsCount = document.getElementById("events_count");
+
+    // WebSocket connections
+    const wsEvt = new WebSocket(`ws://${location.host}/ws/events`);
+    const wsMet = new WebSocket(`ws://${location.host}/ws/metrics`);
+
+    // Connection status handling
+    function updateConnectionStatus(connected) {
+      const statusIndicator = document.querySelector('.status-indicator');
+      const statusText = document.querySelector('.status span');
+      
+      if (connected) {
+        statusIndicator.style.background = 'var(--success)';
+        statusText.textContent = 'Live Data';
+      } else {
+        statusIndicator.style.background = 'var(--error)';
+        statusText.textContent = 'Disconnected';
+      }
+    }
+
+    // Event handling
+    wsEvt.onopen = () => updateConnectionStatus(true);
+    wsEvt.onclose = () => updateConnectionStatus(false);
+    wsEvt.onerror = () => updateConnectionStatus(false);
+
+    wsEvt.onmessage = e => {
+      const {timestamp, value} = JSON.parse(e.data);
+      if (value >= parseFloat(thInp.value)) {
+        // Remove placeholder row if it exists
+        const placeholderRow = evtTbl.querySelector('tr td[colspan="2"]');
+        if (placeholderRow) {
+          evtTbl.innerHTML = '';
+        }
+
+        const tr = evtTbl.insertRow(0);
+        tr.className = 'slide-in';
+        
+        const timeCell = tr.insertCell(0);
+        timeCell.className = 'time-cell';
+        timeCell.innerHTML = `<i class="fas fa-clock"></i> ${new Date(timestamp*1000).toLocaleTimeString()}`;
+        
+        const valueCell = tr.insertCell(1);
+        valueCell.className = 'value-cell';
+        valueCell.innerHTML = `<span style="color: var(--accent-color);">${value.toFixed(3)}</span>`;
+        
+        // Keep only 10 rows
+        if (evtTbl.rows.length > 10) {
+          evtTbl.deleteRow(10);
+        }
+        
+        // Update events count
+        eventsCount.textContent = evtTbl.rows.length;
+      }
+    };
+
+    // Metrics handling
+    wsMet.onopen = () => updateConnectionStatus(true);
+    wsMet.onclose = () => updateConnectionStatus(false);
+    wsMet.onerror = () => updateConnectionStatus(false);
+
+    wsMet.onmessage = e => {
+      const {throughput, avg_value} = JSON.parse(e.data);
+      
+      // Animate value changes
+      animateValue(thr, throughput);
+      animateValue(avg, avg_value.toFixed(3));
+    };
+
+    // Value animation function
+    function animateValue(element, newValue) {
+      const oldValue = parseFloat(element.textContent) || 0;
+      const newValueNum = parseFloat(newValue) || 0;
+      
+      if (oldValue !== newValueNum) {
+        element.style.transform = 'scale(1.1)';
+        element.style.color = 'var(--accent-color)';
+        
+        setTimeout(() => {
+          element.textContent = newValue;
+          element.style.transform = 'scale(1)';
+          element.style.color = 'var(--text-primary)';
+        }, 150);
+      }
+    }
+
+    // Threshold input handling
+    thInp.addEventListener('input', () => {
+      // Clear table and show placeholder when threshold changes
+      evtTbl.innerHTML = `
+        <tr>
+          <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+            Waiting for events above ${thInp.value}...
+          </td>
+        </tr>
+      `;
+      eventsCount.textContent = '0';
+    });
+
+    // Auto-refresh connection on disconnect
+    function setupReconnection() {
+      setTimeout(() => {
+        if (wsEvt.readyState === WebSocket.CLOSED) {
+          location.reload();
+        }
+      }, 5000);
+    }
+
+    wsEvt.addEventListener('close', setupReconnection);
+    wsMet.addEventListener('close', setupReconnection);
+  </script>
+</body>
+</html>
+
