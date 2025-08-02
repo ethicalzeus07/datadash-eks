@@ -1,7 +1,7 @@
 <h1 align="center">🕹️ Data Dash — real-time metrics game on AWS EKS</h1>
 
 <p align="center">
-  <img src="diagrams/datadash-banner1.png" width="500"/><br>
+  <img src="diagrams/datadash-banner.png" width="500"/><br>
   <!-- CI badge links to the latest workflow run -->
   <a href="https://github.com/ethicalzeus07/datadash-eks/actions/workflows/build.yml">
     <img alt="build status" src="https://github.com/ethicalzeus07/datadash-eks/actions/workflows/build.yml/badge.svg">
