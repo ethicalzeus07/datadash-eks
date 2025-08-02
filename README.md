@@ -1,7 +1,7 @@
 <h1 align="center">🕹️ Data Dash — real-time metrics game on AWS EKS</h1>
 
 <p align="center">
-  <img src="diagrams/datadash-banner.png" width="500"/>
+  <img src="diagrams/datadash-banner1.png" width="500"/>
 </p>
 
 > **What it is**  
