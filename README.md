@@ -1,29 +1,43 @@
-<h1 align="center">🕹️ Data Dash — real-time metrics game on AWS EKS</h1>
+<h1 align="center">📊 Data Dash — Real-Time Metrics Dashboard on AWS EKS</h1>
 
 <p align="center">
-  <img src="diagrams/datadash.png" width="500"/><br>
-  <!-- CI badge links to the latest workflow run -->
+  <!-- project banner -->
+  <img src="diagrams/datadash.png" width="540"/>
+  <br>
+  <!-- CI badge -->
   <a href="https://github.com/ethicalzeus07/datadash-eks/actions/workflows/build.yml">
     <img alt="build status" src="https://github.com/ethicalzeus07/datadash-eks/actions/workflows/build.yml/badge.svg">
   </a>
 </p>
 
-> **What it is**  
-> A tiny FastAPI + JavaScript WebSocket game that streams fake events and renders live KPIs.  
-> **Where it runs**  
-> Fully containerised, pushed to Amazon ECR, and deployed on **EKS Fargate** behind an **Application Load Balancer**.
+> **Data Dash** is a tiny FastAPI + WebSocket app that streams fake events and renders live KPIs in the browser.  
+> I built it to deepen my hands-on skills with **Docker, GitHub Actions, Amazon ECR, EKS Fargate, ALB Ingress, and Kubernetes**.
 
 ---
 
-### 🗺️ Architecture (Mermaid)
+## ✨ Features
+| Category | What it does |
+|----------|--------------|
+| **Live metrics** | Streams timestamped events at ±20 rps, shows latest value, moving average, throughput, & filtering |
+| **Cloud native** | End-to-end container workflow: build → push → deploy via GitHub Actions |
+| **Serverless infra** | Runs on **EKS Fargate**—no EC2 nodes to manage |
+| **Ingress & ALB** | Public routing: Browser → ALB → Ingress → Service → Pod |
+| **Cost-aware** | Infra is deleted when not in use; only the demo image remains in ECR |
+
+---
+
+## 🗺️ Architecture
 
 ```mermaid
 flowchart LR
     Browser -- WS / HTTP --> ALB
-    ALB --> Service
+    ALB --> Ingress
+    Ingress --> Service
     Service --> Pod[(FastAPI ⬌ static HTML)]
 
-    %% group the pod inside EKS Fargate
     subgraph "Amazon EKS Fargate"
         Pod
     end
+
+    CI[GitHub&nbsp;Actions] --> ECR[(Amazon ECR)]
+    ECR --> EKS[(Amazon EKS)]
